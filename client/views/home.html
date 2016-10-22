@@ -15,7 +15,7 @@
 
 				<div class="form-group">
 					<fieldset ng-repeat='question in Home.questions track by $index'>
-						<label>Questions:</label>
+						<label>Question:</label>
 						<input type='text' placeholder='Is Milli the coolest thing ever?' ng-model='question.question' class="form-control">
 						
 						<fieldset ng-repeat='option in question.options track by $index'>

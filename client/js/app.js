@@ -68,16 +68,20 @@ app.controller('QuizController', function($http, $routeParams) {
   };
 
   alias.submitAnswers = function() {
+    var numCorrect = 0;
+    
     for (var i = 0; i < alias.quiz.questions.length; i++) {
       var choice = alias.quiz.questions[i].choice;
 
       for (var j = 0; j < alias.quiz.questions[i].options.length; j++) {
         if (alias.quiz.questions[i].options[j].option == choice &&
           alias.quiz.questions[i].options[j].answer) {
-          console.log("You got question " + (i+1) + " right!");
+          numCorrect++;
         }
       }
     }
+
+    alert("You got " + numCorrect + " questions correct!");
   }
 
   alias.loadQuiz();
