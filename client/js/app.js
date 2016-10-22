@@ -1,94 +1,84 @@
-// Create a request object we will be using
-var request = new Request();
+var app = angular.module('milli', ['ngRoute']);
 
-/**
- * when the form is submitted, execute code to add quiz
- * @param event {Object} event information on form submittion
- */
-document.getElementById('quizForm').addEventListener('submit', function(event) {
-  // Prevent default action of submitting a form
-  event.preventDefault();
+app.config(function($routeProvider, $locationProvider) {
+  $routeProvider
+    .when('/', {
+      templateUrl: '../views/home.html',
+      controller: 'HomeController as Home'
+    })
+    .when('/quiz/:quizId', {
+      templateUrl: '../views/quiz.html',
+      controller: 'QuizController as Quiz',
+    });
 
-  // Create a parameters object for sending to api
-  var params = {
-    name: document.getElementById('name').value,
+  $locationProvider.html5Mode(true);
+})
+
+app.controller('HomeController', function($http) {
+  var alias = this;
+  
+  alias.quizzes = [];
+  alias.questions = [{ question: "", options: [{}] }];
+
+  alias.submitQuiz = function() {
+    $http
+      .post('http://localhost:8000/api/quizzes', {
+        name: alias.name,
+        questions: alias.questions,
+      })
+      .then(function(newQuiz) {
+        alias.quizzes.push(newQuiz.data);
+
+        alias.name = "";
+        alias.questions = [{ question: "", options: [{}] }];
+      });
   };
 
-  // Send post request to api endpoint
-  request.send({
-    method: 'POST',
-    url: 'http://localhost:8000/api/quizzes',
-    data: params,
-  }, function(err, data) {
-    if (err) {
-      console.log(err);
-    }
+  alias.loadQuizzes = function() {
+    $http
+      .get('http://localhost:8000/api/quizzes')
+      .then(function(quizzes) {
+        alias.quizzes = quizzes.data;
+      });
+  };
 
-    // Print the data after we receive it
-    addDataToHTML(data);
-  });
+  alias.addQuestion = function() {
+    alias.questions.push({ question: "", options: [{}] });
+  };
+
+  alias.addOption = function(index) {
+    alias.questions[index].options.push({});
+  };
+
+  alias.loadQuizzes();
 });
 
-function loadAllQuizzes() {
-  // Send post request to api endpoint
-  request.send({
-    method: 'GET',
-    url: 'http://localhost:8000/api/quizzes',
-  }, function(err, data) {
-    if (err) {
-      console.log(err);
+app.controller('QuizController', function($http, $routeParams) {
+  var alias = this;
+  var quizId = $routeParams.quizId;
+
+  alias.quiz = {};
+
+  alias.loadQuiz = function() {
+    $http
+      .get('http://localhost:8000/api/quizzes/' + quizId)
+      .then(function(quiz) {
+        alias.quiz = quiz.data[0];
+      });
+  };
+
+  alias.submitAnswers = function() {
+    for (var i = 0; i < alias.quiz.questions.length; i++) {
+      var choice = alias.quiz.questions[i].choice;
+
+      for (var j = 0; j < alias.quiz.questions[i].options.length; j++) {
+        if (alias.quiz.questions[i].options[j].option == choice &&
+          alias.quiz.questions[i].options[j].answer) {
+          console.log("You got question " + (i+1) + " right!");
+        }
+      }
     }
-
-    // Print the data after we receive it
-    replaceHTMLWithData(data);
-  });
-}
-
-/**
- * adds quizzes data to quizzes table
- * @param data {Object} new quiz data
- */
-function addDataToHTML (data) {
-  // Create row for new quiz
-  var row = document.createElement('tr');
-  // Create columns of attributes
-  var nameCol = document.createElement('td');
-
-  // Set content of columns 
-  console.log(data);
-  nameCol.innerHTML = data.name;
-
-  // Add all columns to the row
-  row.appendChild(nameCol);
-
-  // Add row to table
-  document.getElementById('quizzes').appendChild(row);
-}
-
-/**
- * empties quizzes table and adds all quizzes to it
- * @param data {Array} array of quiz data
- */
-function replaceHTMLWithData (data) {
-  // empty quizzes table
-  document.getElementById('quizzes').innerHTML = '';
-
-  // Loop through all quizzes
-  for (var i = 0; i < data.length; i++) {
-    // Create row for new quiz
-    var row = document.createElement('tr');
-    // Create columns of attributes
-    var nameCol = document.createElement('td');
-
-    // Set content of columns 
-    nameCol.innerHTML = data[i].name;
-
-    // Add all columns to the row
-    row.appendChild(nameCol);
-
-    // Add row to table
-    document.getElementById('quizzes').appendChild(row);
   }
-}
 
-loadAllQuizzes();
+  alias.loadQuiz();
+});

@@ -1,0 +1,22 @@
+<div class='row'>
+	<div class='col-lg-8 col-lg-offset-2'>
+		<h2>{{ Quiz.quiz.name }}</h2>
+	</div>
+</div>
+
+<div class='row'>
+	<div class="col-lg-8 col-lg-offset-2">
+		<div ng-repeat='question in Quiz.quiz.questions'>
+			<p>
+				{{ question.question }}
+			</p>
+
+			<div ng-repeat='option in question.options'>
+				<input type="radio" ng-model='question.choice' value="{{ option.option }}">
+				{{ option.option }}
+			</div>
+		</div>
+		<br>
+		<button type="button" ng-click='Quiz.submitAnswers()'>Submit Answers!</button>
+	</div>
+</div>

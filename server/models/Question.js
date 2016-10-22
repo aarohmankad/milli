@@ -1,22 +1,24 @@
 var mongoose = require('mongoose');
-var Question = require('./Question');
+var Option = require('./Option');
 
 /**
- * Quiz model
+ * Question model
  * @type {Schema}
  */
-var Quiz = new mongoose.Schema({
+var Question = new mongoose.Schema({
   createdDate: {
     type: Date,
     default: Date.now,
   },
-  name: {
+  question: {
     type: String,
-    unique: true,
     required: true,
   },
-  questions: [Question.schema],
+  options: [Option.schema],
 });
 
 // Allow us to export model to other files (e.x. routes)
-module.exports = mongoose.model('Quiz', Quiz);
+module.exports = {
+	model: mongoose.model('Question', Question),
+	schema: Question,
+};

@@ -6,7 +6,7 @@ module.exports = function(router) {
   // A GET request to /api/quizzes/:id will 
   // get a quiz based on id in url
   router.get('/quizzes/:id', function (req, res) {
-    Quiz.find({ id: req.params.id }, function (err, quiz) {
+    Quiz.find({ _id: req.params.id }, function (err, quiz) {
       if (err) {
         return res.send(err.message);
       } else if (!quiz) {

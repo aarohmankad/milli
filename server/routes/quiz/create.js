@@ -1,4 +1,4 @@
-var
+
   mongoose = require('mongoose'),
   Quiz = require('./../../models/Quiz');
 
